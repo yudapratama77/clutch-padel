@@ -21,4 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ClutchPadel"
 include(":app")
- 
+include(":domain")
+include(":data")
+include(":wear")
