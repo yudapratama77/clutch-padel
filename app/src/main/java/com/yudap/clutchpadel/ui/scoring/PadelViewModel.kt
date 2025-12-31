@@ -1,14 +1,19 @@
 package com.yudap.clutchpadel.ui.scoring
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.yudap.data.repository.MatchRepository
 import com.yudap.domain.scoring.PadelScoreState
 import com.yudap.domain.scoring.PadelScoringEngine
 import com.yudap.domain.scoring.PadelUiState
 import com.yudap.domain.scoring.ScoreEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class PadelViewModel : ViewModel() {
+class PadelViewModel(
+    private val repository: MatchRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         PadelUiState(
@@ -27,6 +32,8 @@ class PadelViewModel : ViewModel() {
             score = next,
             canUndo = next.history.isNotEmpty()
         )
+
+        persist()
     }
 
     fun reset() {
@@ -34,5 +41,11 @@ class PadelViewModel : ViewModel() {
             score = PadelScoreState.initial(),
             canUndo = false
         )
+    }
+
+    private fun persist() {
+        viewModelScope.launch {
+            repository.saveCurrentMatch(_uiState.value.score)
+        }
     }
 }
